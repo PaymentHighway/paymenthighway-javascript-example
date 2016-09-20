@@ -10,7 +10,6 @@ var FormBuilder = paymentHighway.FormBuilder;
 var PaymentAPI = paymentHighway.PaymentAPI;
 var SecureSigner = paymentHighway.SecureSigner;
 
-console.log(FormBuilder);
 app.engine('handlebars', exphbs({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
 
@@ -32,8 +31,8 @@ app.get('/', function (req, res) {
 
 app.get('/add_card', function (req, res) {
     var successUri = baseUri + "/add_card/success";
-    var failureUri = baseUri + "/add_card/failure";
-    var cancelUri = baseUri + "/add_card/cancel";
+    var failureUri = baseUri + "/failure";
+    var cancelUri = baseUri + "/cancel";
     var formContainer = formBuilder.generateAddCardParameters(successUri, failureUri, cancelUri, language);
     var data = {
         action: formContainer.getAction(),
@@ -42,44 +41,73 @@ app.get('/add_card', function (req, res) {
     };
     res.render('form', data);
 });
-app.get('/add_card/success', function(req, res) {
+app.get('/add_card/success', function (req, res) {
     var validRedirect = validateRedirect(req.query);
     var tokenizationId = req.query['sph-tokenization-id'];
-    console.log(tokenizationId);
-    paymentAPI.tokenize(tokenizationId)
+
+    paymentAPI.tokenization(tokenizationId)
         .then(function (result) {
             var status;
-            if(result.result.code == 100){
+            if (result.result.code == 100) {
                 status = "Successful tokenization";
             }
             else {
                 status = "Tokenization failed"
             }
-            console.log(result);
+
             var data = {
                 validRedirect: validRedirect,
                 message: result.result.message,
-                card: _.transform(result.card, function(result, value, key) {
+                card: _.transform(result.card, function (result, value, key) {
                     result.push({name: key, value: value});
                     return result;
                 }, []),
+                cardToken: result.card_token,
                 status: status,
                 resultCode: result.result.code
             };
 
-            console.log(result);
-
-            res.render("pay_with_card_success", data);
+            res.render("add_card_success", data);
         })
-        .catch(function(err){
+        .catch(function (err) {
             res.send(err.message);
         });
 });
 
+
+app.get('/pay_with_token', function (req, res) {
+    var token = new paymentHighway.Token(req.query.token);
+    var request = new paymentHighway.TransactionRequest(token, 1990, "EUR");
+    paymentAPI.initTransaction()
+        .then(function (init) {
+            return paymentAPI.debitTransaction(init.id, request);
+        })
+        .then(function (result) {
+            var status;
+            if (result.result.code == 100) {
+                status = "Successful payment with token";
+            }
+            else {
+                status = "Payment with failed"
+            }
+            var data = {
+                message: result.result.message,
+                status: status,
+                resultCode: result.result.code
+            };
+
+            res.render("pay_with_token_success", data);
+        })
+        .catch(function (err) {
+            res.send(err.message);
+        });
+});
+
+
 app.get('/pay_with_card', function (req, res) {
     var successUri = baseUri + "/pay_with_card/success";
-    var failureUri = baseUri + "/pay_with_card/failure";
-    var cancelUri = baseUri + "/pay_with_card/cancel";
+    var failureUri = baseUri + "/failure";
+    var cancelUri = baseUri + "/cancel";
     var description = "10 balloons, 19,50€";
     var currency = "EUR";
     var orderId = "1000123A";
@@ -92,15 +120,15 @@ app.get('/pay_with_card', function (req, res) {
     };
     res.render('form', data);
 });
-app.get('/pay_with_card/success', function(req, res) {
+app.get('/pay_with_card/success', function (req, res) {
     var validRedirect = validateRedirect(req.query);
     var request = new paymentHighway.CommitTransactionRequest(1950, "EUR");
     var transactionId = req.query['sph-transaction-id'];
-    console.log(transactionId);
+
     paymentAPI.commitTransaction(transactionId, request)
         .then(function (result) {
             var status;
-            if(result.result.code == 100){
+            if (result.result.code == 100) {
                 status = "Successful commit";
             }
             else {
@@ -109,26 +137,79 @@ app.get('/pay_with_card/success', function(req, res) {
             var data = {
                 validRedirect: validRedirect,
                 message: result.result.message,
-                card: _.transform(result.card, function(result, value, key) {
-                        result.push({name: key, value: value});
-                        return result;
-                    }, []),
+                card: _.transform(result.card, function (result, value, key) {
+                    result.push({name: key, value: value});
+                    return result;
+                }, []),
                 status: status,
                 resultCode: result.result.code
             };
 
-            console.log(result);
-
             res.render("pay_with_card_success", data);
         })
-        .catch(function(err){
+        .catch(function (err) {
             res.send(err.message);
         });
 });
-app.get('/pay_with_card/failure', function(req, res) {
+
+
+app.get('/add_and_pay_with_card', function (req, res) {
+    var successUri = baseUri + "/add_and_pay_with_card/success";
+    var failureUri = baseUri + "/failure";
+    var cancelUri = baseUri + "/cancel";
+
+    var amount = 1990;
+    var currency = "EUR";
+    var orderId = "1000123A";
+    var description = "A Box of Dreams. 19,90€";
+
+    var formContainer = formBuilder.generateAddCardAndPaymentParameters(successUri, failureUri, cancelUri, language, amount, currency, orderId, description);
+    var data = {
+        action: formContainer.getAction(),
+        method: formContainer.method,
+        inputs: formContainer.nameValuePairs
+    };
+    res.render('form', data);
+});
+
+app.get('/add_and_pay_with_card/success', function(req,res) {
+    var validRedirect = validateRedirect(req.query);
+    var request = new paymentHighway.CommitTransactionRequest(1950, "EUR");
+    var transactionId = req.query['sph-transaction-id'];
+
+    paymentAPI.commitTransaction(transactionId, request)
+        .then(function (result) {
+            var status;
+            if (result.result.code == 100) {
+                status = "Successful commit";
+            }
+            else {
+                status = "Commit failed"
+            }
+            var data = {
+                validRedirect: validRedirect,
+                message: result.result.message,
+                card: _.transform(result.card, function (result, value, key) {
+                    result.push({name: key, value: value});
+                    return result;
+                }, []),
+                cardToken: result.card_token,
+                status: status,
+                resultCode: result.result.code
+            };
+
+            res.render("add_and_pay_with_card_success", data);
+        })
+        .catch(function (err) {
+            res.send(err.message);
+        });
+});
+
+
+app.get('/failure', function (req, res) {
     res.render('failure', {message: req.query['sph-failure']});
 });
-app.get('/pay_with_card/cancel', function(req, res) {
+app.get('/cancel', function (req, res) {
     var data = {
         parameters: _.transform(req.query, function (result, value, key) {
             result.push({name: key, value: value});
