@@ -1,0 +1,18 @@
+<form action="{{action}}" method="{{method}}">
+
+    {{#each inputs}}
+        <input type="hidden" name="{{this.first}}" value="{{this.second}}"/>
+    {{/each}}
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Value</th>
+        </tr>
+        {{#each inputs}}
+            <tr>
+                <td>{{this.first}}</td><td>{{this.second}}</td>
+            </tr>
+        {{/each}}
+    </table>
+    <button type="submit">Submit</button>
+</form>

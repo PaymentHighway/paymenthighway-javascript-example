@@ -1,0 +1,25 @@
+<p>
+    <b>
+        {{#if validRedirect }}
+            Valid signature found
+        {{else}}
+            Signature was invalid
+        {{/if}}
+    </b>
+</p>
+<p> {{status}}</p>
+<p>Response code: {{resultCode}}</p>
+<p>Response message: {{message}}</p>
+
+<table>
+    <tr>
+        <th>name</th>
+        <th>value</th>
+    </tr>
+    {{#each card}}
+        <tr>
+            <td>{{this.name}}</td>
+            <td>{{this.value}}</td>
+        </tr>
+    {{/each}}
+</table>

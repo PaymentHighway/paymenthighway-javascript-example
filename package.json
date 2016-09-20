@@ -1,0 +1,22 @@
+{
+  "name": "node-test",
+  "version": "1.0.0",
+  "description": "Test",
+  "main": "index.js",
+  "scripts": {},
+  "author": "Pauli Kostamo",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.14.0",
+    "express3-handlebars": "^0.5.2",
+    "handlebars": "^4.0.5",
+    "lodash": "^4.15.0",
+    "multer": "^1.2.0",
+    "paymenthighway-javascript-lib": "git+ssh://git@github.com:solinor/paymenthighway-javascript-lib.git"
+  },
+  "engines": {
+    "node": ">=4.5.0"
+  }
+}
