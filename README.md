@@ -5,6 +5,7 @@ This is a simple JavaScript example to demonstrate how to use the Payment Highwa
 The project is pre-configured to use the Payment Highway development sandbox environment.
 
 Payment Highway Documentation: https://paymenthighway.fi/dev/
+
 Javascript Lib source: https://github.com/solinor/paymenthighway-javascript-lib
 
 # Requirements
