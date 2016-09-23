@@ -152,6 +152,22 @@ app.get('/pay_with_card/success', function (req, res) {
         });
 });
 
+app.get('/pay_with_mobilepay', function (req, res) {
+    var successUri = baseUri + "/pay_with_card/success";
+    var failureUri = baseUri + "/failure";
+    var cancelUri = baseUri + "/cancel";
+    var description = "10 balloons, 19,50€";
+    var currency = "EUR";
+    var orderId = "1000123A";
+
+    var formContainer = formBuilder.generatePayWithMobilePayParameters(successUri, failureUri, cancelUri, language, 1950, currency, orderId, description);
+    var data = {
+        action: formContainer.getAction(),
+        method: formContainer.method,
+        inputs: formContainer.nameValuePairs
+    };
+    res.render('form', data);
+});
 
 app.get('/add_and_pay_with_card', function (req, res) {
     var successUri = baseUri + "/add_and_pay_with_card/success";
