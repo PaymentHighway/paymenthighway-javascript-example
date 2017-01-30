@@ -18,8 +18,8 @@ app.set('port', process.env.PORT || 3000);
 var testKey = 'testKey';
 var testSecret = 'testSecret';
 
-var formBuilder = new FormBuilder('POST', testKey, testSecret, 'test', 'test_merchantId', 'https://v1-hub-staging.sph-test-solinor.com');
-var paymentAPI = new PaymentAPI('https://v1-hub-staging.sph-test-solinor.com/', testKey, testSecret, 'test', 'test_merchantId');
+var formBuilder = new FormBuilder('POST', testKey, testSecret, 'test', 'test_merchantId', 'http://localhost:9000');
+var paymentAPI = new PaymentAPI('http://localhost:9000', testKey, testSecret, 'test', 'test_merchantId');
 var secureSigner = new SecureSigner(testKey, testSecret);
 
 var baseUri = "http://localhost:3000";
@@ -112,7 +112,9 @@ app.get('/pay_with_card', function (req, res) {
   var currency = "EUR";
   var orderId = "1000123A";
 
-  var formContainer = formBuilder.generatePaymentParameters(successUri, failureUri, cancelUri, language, 1950, currency, orderId, description);
+  var formContainer = formBuilder.generatePaymentParameters(successUri, failureUri, cancelUri, language, 1950, currency,
+    orderId, description, undefined, undefined, undefined, undefined, '#aabbcc', undefined,
+    'https://preview.paymenthighway.fi/dev/images/ph-logo-250x250.png');
   var data = {
     action: formContainer.getAction(),
     method: formContainer.method,
@@ -182,6 +184,24 @@ app.get('/add_and_pay_with_card', function (req, res) {
   var description = "A Box of Dreams. 19,90€";
 
   var formContainer = formBuilder.generateAddCardAndPaymentParameters(successUri, failureUri, cancelUri, language, amount, currency, orderId, description);
+  var data = {
+    action: formContainer.getAction(),
+    method: formContainer.method,
+    inputs: formContainer.nameValuePairs
+  };
+  res.render('form', data);
+});
+
+app.get('/masterpass', function(req, res) {
+  var successUri = baseUri + "/pay_with_card/success";
+  var failureUri = baseUri + "/failure";
+  var cancelUri = baseUri + "/cancel";
+  var amount = 1990;
+  var currency = "EUR";
+  var orderId = "masterpass123";
+  var description = "A Box of Dreams. 19,90€";
+
+  var formContainer = formBuilder.generateMasterPassParameters(successUri, failureUri, cancelUri, language, amount, currency, orderId, description)
   var data = {
     action: formContainer.getAction(),
     method: formContainer.method,

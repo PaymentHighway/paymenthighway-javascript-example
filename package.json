@@ -14,7 +14,7 @@
     "handlebars": "^4.0.5",
     "lodash": "^4.15.0",
     "multer": "^1.2.0",
-    "paymenthighway": "solinor/paymenthighway-javascript-lib#mobilepay-new-parameters"
+    "paymenthighway": "solinor/paymenthighway-javascript-lib#masterpass"
   },
   "engines": {
     "node": ">=4.5.0"
