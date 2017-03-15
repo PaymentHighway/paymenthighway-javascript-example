@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "Test",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "start": "node index.js"
+  },
   "author": "Pauli Kostamo",
   "license": "MIT",
   "dependencies": {
