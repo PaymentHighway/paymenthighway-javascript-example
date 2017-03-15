@@ -11,7 +11,11 @@
 <p>Response code: {{resultCode}}</p>
 <p>Response message: {{message}}</p>
 <p>Card token: {{cardToken}} <br />
+{{#if cvcRequired }}
+    <a href="/pay_with_token_and_cvc?token={{cardToken}}">Pay with token and cvc</a></p>
+{{else}}
     <a href="/pay_with_token?token={{cardToken}}">Pay with token</a></p>
+{{/if}}
 <table>
     <tr>
         <th>name</th>
